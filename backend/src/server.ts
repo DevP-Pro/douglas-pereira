@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './config/db'; // Corrigindo o caminho para o db.ts
+import connectDB from './config/db'; // Certifique-se que o caminho está correto
+import authRoutes from './routes/authRoutes'; // Importando as rotas de autenticação
 
 dotenv.config();
 
@@ -12,7 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => { // Tipagem de req e res
+// Configurando as rotas de autenticação
+app.use('/api/auth', authRoutes);
+
+app.get('/', (req: Request, res: Response) => { 
   res.send('API is running...');
 });
 
