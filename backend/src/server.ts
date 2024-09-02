@@ -1,8 +1,10 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import connectDB from './config/db'; // Certifique-se que o caminho está correto
-import authRoutes from './routes/authRoutes'; // Importando as rotas de autenticação
+import connectDB from './config/db';
+import machineRoutes from './routes/machineRoutes';
+import monitoringRoutes from './routes/monitoringRoutes';
+import { protect } from './middleware/authMiddleware';
 
 dotenv.config();
 
@@ -13,10 +15,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Configurando as rotas de autenticação
-app.use('/api/auth', authRoutes);
+app.use('/api/machines', machineRoutes); // Configure a rota para máquinas
 
-app.get('/', (req: Request, res: Response) => { 
+app.use('/api/machines/:id/monitorings', protect, monitoringRoutes);
+
+app.get('/', (req, res) => {
   res.send('API is running...');
 });
 

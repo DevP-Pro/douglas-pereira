@@ -6,6 +6,8 @@ import PrivateRoute from "./components/PrivateRoute";
 import RegisterPage from "./pages/auth/Register";
 import MachinesPage from './pages/MachinesPage';
 import MachineFormPage from './pages/MachineFormPage';
+import AddMachinePage from "./pages/AddMachinePage";
+import MachineDetailsPage from "./pages/MachineDetailsPage";
 
 const App = () => {
   return (
@@ -44,6 +46,22 @@ const App = () => {
           element={
             <PrivateRoute>
               <MachineFormPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/add-machine"
+          element={
+            <PrivateRoute>
+              <AddMachinePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/:id"
+          element={
+            <PrivateRoute>
+              <MachineDetailsPage />
             </PrivateRoute>
           }
         />
