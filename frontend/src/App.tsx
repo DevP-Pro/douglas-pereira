@@ -1,9 +1,11 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './pages/auth/Login';
-import Dashboard from './pages/Dashboard';
-import PrivateRoute from './components/PrivateRoute';
-import RegisterPage from './pages/auth/Register';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Login from "./pages/auth/Login";
+import Dashboard from "./pages/Dashboard";
+import PrivateRoute from "./components/PrivateRoute";
+import RegisterPage from "./pages/auth/Register";
+import MachinesPage from './pages/MachinesPage';
+import MachineFormPage from './pages/MachineFormPage';
 
 const App = () => {
   return (
@@ -17,6 +19,31 @@ const App = () => {
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/machines"
+          element={
+            <PrivateRoute>
+              <MachinesPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/new"
+          element={
+            <PrivateRoute>
+              <MachineFormPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/edit/:id"
+          element={
+            <PrivateRoute>
+              <MachineFormPage />
             </PrivateRoute>
           }
         />
