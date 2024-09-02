@@ -1,30 +1,31 @@
 import React from 'react';
-import { Box, Button, Checkbox, FormControlLabel, Link, TextField, Typography, useTheme } from '@mui/material';
+import { Box, Button, TextField, Link, Typography, useTheme } from '@mui/material';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const LoginPage = () => {
+const RegisterPage = () => {
   const theme = useTheme();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate();
 
   const onSubmit = async (data: any) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         password: data.password,
       });
 
-      if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        navigate('/dashboard');
+      if (response.data) {
+        navigate('/login'); // Redireciona para a página de login após o registro bem-sucedido
       } else {
-        alert('Invalid credentials');
+        alert('Registration failed');
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      alert('Login failed. Please try again.');
+      console.error('Error during registration:', error);
+      alert('Registration failed. Please try again.');
     }
   };
 
@@ -35,7 +36,7 @@ const LoginPage = () => {
         height: '100vh',
       }}
     >
-      {/* Área do formulário de login */}
+      {/* Área do formulário de registro */}
       <Box
         sx={{
           flex: 1,
@@ -48,16 +49,34 @@ const LoginPage = () => {
       >
         <Box maxWidth="400px" width="100%">
           <Typography variant="h4" gutterBottom>
-            Sign in
+            Sign up
           </Typography>
           <Typography variant="body2" gutterBottom>
-            Don't have an account? <Link href="/register">Sign up</Link>
+            Already have an account? <Link href="/login">Sign in</Link>
           </Typography>
           <Box
             component="form"
             onSubmit={handleSubmit(onSubmit)}
             noValidate
           >
+            <TextField
+              fullWidth
+              label="First Name"
+              margin="normal"
+              variant="outlined"
+              {...register('firstName', { required: 'First name is required' })}
+              error={Boolean(errors.firstName)}
+              helperText={errors.firstName?.message as string}
+            />
+            <TextField
+              fullWidth
+              label="Last Name"
+              margin="normal"
+              variant="outlined"
+              {...register('lastName', { required: 'Last name is required' })}
+              error={Boolean(errors.lastName)}
+              helperText={errors.lastName?.message as string}
+            />
             <TextField
               fullWidth
               label="Email address"
@@ -77,19 +96,9 @@ const LoginPage = () => {
               error={Boolean(errors.password)}
               helperText={errors.password?.message as string}
             />
-            <FormControlLabel
-              control={<Checkbox {...register('rememberMe')} />}
-              label="Remember me"
-              sx={{ mt: 1 }}
-            />
             <Button type="submit" fullWidth variant="contained" color="primary" sx={{ mt: 3 }}>
-              Sign in
+              Sign up
             </Button>
-          </Box>
-          <Box sx={{ mt: 2, display: "none" }}>
-            <Link href="#" variant="body2">
-              Forgot password?
-            </Link>
           </Box>
         </Box>
       </Box>
@@ -101,7 +110,7 @@ const LoginPage = () => {
           display: { xs: 'none', md: 'flex' },
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#122647', // Cor de fundo para o lado direito
+          backgroundColor: '#122647',
         }}
       >
         <Box
@@ -119,4 +128,4 @@ const LoginPage = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;
