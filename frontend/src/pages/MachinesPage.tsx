@@ -54,6 +54,23 @@ const MachinesPage = () => {
     navigate(`/machines/${id}`);
   };
 
+  const handleDeleteMachine = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+  
+      await axios.delete(`http://localhost:5000/api/machines/${id}`, config);
+  
+      // Atualize a lista de máquinas após a exclusão
+      setMachines(machines.filter(machine => machine._id !== id));
+    } catch (error) {
+      console.error('Erro ao excluir máquina:', error);
+    }
+  };
+  
+
   return (
     <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
       <CssBaseline />
@@ -87,8 +104,8 @@ const MachinesPage = () => {
           rows={filteredMachines}
           page={0}
           rowsPerPage={5}
-          onEdit={(id) => console.log(`Edit machine ${id}`)}
-          onDelete={(id) => console.log(`Delete machine ${id}`)}
+          onEdit={(id) => console.log(`Delete machine ${id}`)}
+          onDelete={(id) => handleDeleteMachine(id)}
           onView={(id) => navigate(`/machines/${id}`)}
         />
       </Box>

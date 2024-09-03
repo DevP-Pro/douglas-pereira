@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Machine from '../models/machineModel';
+import Monitoring from '../models/monitoringModel';
+import Sensor from '../models/sensorModel';
 
 // @desc Get all machines
 // @route GET /api/machines
@@ -18,6 +20,33 @@ const createMachine = asyncHandler(async (req, res) => {
 
   const createdMachine = await machine.save();
   res.status(201).json(createdMachine);
+});
+
+// @desc Delete a machine and all its monitorings and sensors
+// @route DELETE /api/machines/:id
+// @access Private
+const deleteMachine = asyncHandler(async (req, res) => {
+  const machine = await Machine.findById(req.params.id);
+
+  if (!machine) {
+    res.status(404);
+    throw new Error('Machine not found');
+  }
+
+  // Encontre todos os monitoramentos relacionados à máquina
+  const monitorings = await Monitoring.find({ machine: req.params.id });
+
+  for (const monitoring of monitorings) {
+    // Exclua todos os sensores relacionados a cada monitoramento
+    await Sensor.deleteMany({ monitoring: monitoring._id });
+    // Exclua o monitoramento
+    await Monitoring.deleteOne({ _id: monitoring._id });
+  }
+
+  // Por fim, exclua a máquina
+  await Machine.deleteOne({ _id: req.params.id });
+
+  res.json({ message: 'Machine and all related data removed' });
 });
 
 // @desc Get a machine by ID
@@ -54,4 +83,4 @@ const updateMachine = asyncHandler(async (req, res) => {
   }
 });
 
-export { getMachines, createMachine, getMachineById, updateMachine };
+export { getMachines, createMachine, deleteMachine, getMachineById, updateMachine };
