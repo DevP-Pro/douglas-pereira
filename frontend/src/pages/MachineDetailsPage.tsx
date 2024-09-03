@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
-  Container,
   Paper,
   Typography,
   Table,
@@ -14,13 +13,17 @@ import {
   TablePagination,
   IconButton,
   TableSortLabel,
+  CssBaseline,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-
-import axios from "axios";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import Sidebar from "../components/Sidebar";
+import axios from "axios";
 
 interface Monitoring {
   _id: string;
@@ -43,6 +46,7 @@ const MachineDetailsPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [orderBy, setOrderBy] = useState<keyof Monitoring>('name');
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -129,7 +133,12 @@ const MachineDetailsPage = () => {
     setOrderBy(property);
   };
 
-  const sortedMonitorings = monitorings.slice().sort((a, b) => {
+  // Filtrando os monitoramentos com base na consulta de busca
+  const filteredMonitorings = monitorings.filter((monitoring) =>
+    monitoring.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedMonitorings = filteredMonitorings.slice().sort((a, b) => {
     const aValue = a[orderBy];
     const bValue = b[orderBy];
     if (aValue < bValue) return order === 'asc' ? -1 : 1;
@@ -143,21 +152,47 @@ const MachineDetailsPage = () => {
   );
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
+    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      <CssBaseline />
       <Sidebar />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Paper elevation={3} sx={{ padding: 4 }}>
-          <Typography variant="h5" component="h1" gutterBottom>
+      <Box sx={{ flexGrow: 1, p: 3, overflowY: "auto" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
             Detalhes da Máquina: {machine?.name} ({machine?.type})
           </Typography>
           <Button
             variant="contained"
             color="primary"
+            startIcon={<AddIcon />}
             onClick={handleAddMonitoring}
-            sx={{ mb: 2 }}
+            sx={{ bgcolor: '#6366F1' }}
           >
-            Adicionar Monitoramento
+            Novo Monitoramento
           </Button>
+        </Box>
+        <Paper elevation={3} sx={{ padding: 2 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Buscar monitoramento"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ mb: 2 }}
+          />
           <Box sx={{ overflowX: "auto" }}>
             <Table sx={{ minWidth: "800px" }}>
               <TableHead>
@@ -178,7 +213,7 @@ const MachineDetailsPage = () => {
                       direction={order}
                       onClick={() => handleRequestSort('type')}
                     >
-                      Tipo de Monitoramento
+                      Modelo do sensor
                     </TableSortLabel>
                   </TableCell>
                   <TableCell align="center">Ações</TableCell>
@@ -217,7 +252,7 @@ const MachineDetailsPage = () => {
           </Box>
           <TablePagination
             component="div"
-            count={monitorings.length}
+            count={filteredMonitorings.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
@@ -225,7 +260,7 @@ const MachineDetailsPage = () => {
             rowsPerPageOptions={[5, 10, 25]}
           />
         </Paper>
-      </Container>
+      </Box>
     </Box>
   );
 };

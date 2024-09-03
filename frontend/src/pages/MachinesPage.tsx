@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MachinesTable } from "./MachinesTable"; // Ajuste o caminho conforme necessário
-import { Button, TextField, Box, CssBaseline } from "@mui/material";
+import { Button, TextField, Box, CssBaseline, Typography, InputAdornment } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 
@@ -34,7 +35,6 @@ const MachinesPage = () => {
         config
       );
       setMachines(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error("Erro ao buscar máquinas:", error);
     }
@@ -44,6 +44,7 @@ const MachinesPage = () => {
     setSearchQuery(event.target.value);
   };
 
+  // Função para filtrar as máquinas com base no texto de busca
   const filteredMachines = machines.filter((machine) =>
     machine.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -54,30 +55,32 @@ const MachinesPage = () => {
 
   const handleDeleteMachine = async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const config = {
         headers: { Authorization: `Bearer ${token}` },
       };
-  
+
       await axios.delete(`http://localhost:5000/api/machines/${id}`, config);
-  
+
       // Atualize a lista de máquinas após a exclusão
-      setMachines(machines.filter(machine => machine._id !== id));
+      setMachines(machines.filter((machine) => machine._id !== id));
     } catch (error) {
-      console.error('Erro ao excluir máquina:', error);
+      console.error("Erro ao excluir máquina:", error);
     }
   };
 
   const handleEditMachine = (id: string) => {
     navigate(`/machines/${id}/edit`);
   };
-  
 
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "#f9fafb" }}>
       <CssBaseline />
       <Sidebar />
       <Box sx={{ flexGrow: 1, p: 3, overflowY: "auto" }}>
+        <Typography variant="h4" gutterBottom>
+          Máquinas
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -86,13 +89,42 @@ const MachinesPage = () => {
             mb: 2,
           }}
         >
+          <TextField
+            variant="outlined"
+            placeholder="Buscar máquina"
+            value={searchQuery}
+            onChange={handleSearch}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: "4px",
+              boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
+              width: "300px",
+            }}
+          />
           <Button
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
             onClick={() => navigate("/add-machine")}
+            sx={{
+              backgroundColor: "#6366f1",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#4f46e5",
+              },
+              borderRadius: "8px",
+              textTransform: "none",
+              padding: "8px 16px",
+            }}
           >
-            Add Machine
+            Nova Máquina
           </Button>
         </Box>
         <MachinesTable

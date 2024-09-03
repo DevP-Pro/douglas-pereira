@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline, MenuItem } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem, Container, Paper, Typography } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
@@ -60,55 +60,81 @@ const EditSensorPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb' }}>
       <CssBaseline />
       <Sidebar />
-      <Box sx={{ flexGrow: 1, p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Box component="form" sx={{ maxWidth: '500px', width: '100%' }}>
-          <TextField
-            fullWidth
-            label="Nome do Sensor"
-            margin="normal"
-            variant="outlined"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <TextField
-            fullWidth
-            select
-            label="Status do Sensor"
-            margin="normal"
-            variant="outlined"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            required
-          >
-            {sensorStatusOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                {option}
-              </MenuItem>
-            ))}
-          </TextField>
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            sx={{ mt: 3 }}
-            onClick={handleSave}
-          >
-            Salvar
-          </Button>
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{ mt: 1 }}
-            onClick={() => navigate(-1)} // Voltar para a página anterior
-          >
-            Voltar
-          </Button>
-        </Box>
-      </Box>
+      <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Paper elevation={3} sx={{ padding: 4, width: '100%', borderRadius: 2 }}>
+          <Typography variant="h6" component="h1" gutterBottom sx={{ color: '#3f51b5', fontWeight: 500 }}>
+            Editar Sensor
+          </Typography>
+          <Typography variant="body2" gutterBottom sx={{ color: '#6b7280', marginBottom: 2 }}>
+            Atualize as informações do sensor selecionado.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Nome do Sensor"
+              margin="normal"
+              variant="outlined"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              fullWidth
+              select
+              label="Status do Sensor"
+              margin="normal"
+              variant="outlined"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              required
+            >
+              {sensorStatusOptions.map((option) => (
+                <MenuItem key={option} value={option}>
+                  {option}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSave}
+              sx={{
+                backgroundColor: '#6366f1',
+                color: '#ffffff',
+                '&:hover': {
+                  backgroundColor: '#4f46e5',
+                },
+                textTransform: 'none',
+                borderRadius: '8px',
+              }}
+            >
+              Salvar
+            </Button>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => navigate(-1)}
+              sx={{
+                borderColor: '#d1d5db',
+                color: '#6b7280',
+                textTransform: 'none',
+                borderRadius: '8px',
+              }}
+            >
+              Voltar
+            </Button>
+          </Box>
+        </Paper>
+      </Container>
     </Box>
   );
 };

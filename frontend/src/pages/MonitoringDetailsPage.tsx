@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
-  Container,
   Paper,
   Typography,
   Table,
@@ -14,12 +13,15 @@ import {
   TablePagination,
   IconButton,
   TableSortLabel,
-  AppBar,
-  Toolbar,
+  CssBaseline,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
@@ -37,6 +39,7 @@ const MonitoringDetailsPage = () => {
   const [monitoringName, setMonitoringName] = useState('');
   const [sensorType, setSensorType] = useState('');
   const [sensors, setSensors] = useState<Sensor[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [order, setOrder] = useState<Order>('asc');
@@ -118,10 +121,6 @@ const MonitoringDetailsPage = () => {
     }
   };
 
-  const handleViewSensor = (sensorId: string) => {
-    console.log(`Visualizar detalhes do sensor: ${sensorId}`);
-  };
-
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
@@ -131,7 +130,11 @@ const MonitoringDetailsPage = () => {
     setPage(0);
   };
 
-  const sortedSensors = [...sensors].sort((a, b) => {
+  const filteredSensors = sensors.filter((sensor) =>
+    sensor.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedSensors = filteredSensors.sort((a, b) => {
     if (orderBy === 'createdAt') {
       return order === 'asc'
         ? new Date(a[orderBy]).getTime() - new Date(b[orderBy]).getTime()
@@ -143,31 +146,55 @@ const MonitoringDetailsPage = () => {
     }
   });
 
+  const paginatedSensors = sortedSensors.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
-      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <Typography variant="h6" noWrap component="div">
-            {monitoringName}
-          </Typography>
-        </Toolbar>
-      </AppBar>
+    <Box sx={{ display: 'flex', height: '100vh', overflow: "hidden" }}>
+      <CssBaseline />
       <Sidebar />
-      <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <Paper elevation={3} sx={{ padding: 4 }}>
-          <Typography variant="h5" component="h1" gutterBottom>
+      <Box sx={{ flexGrow: 1, p: 3, overflowY: "auto" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
             {monitoringName} - {sensorType}
           </Typography>
           <Button
             variant="contained"
             color="primary"
+            startIcon={<AddIcon />}
             onClick={handleAddSensor}
-            sx={{ mb: 2 }}
+            sx={{ bgcolor: '#6366F1' }}
           >
-            Adicionar Sensor
+            Novo Sensor
           </Button>
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: '800px' }}>
+        </Box>
+        <Paper elevation={3} sx={{ padding: 2 }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Buscar sensor"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            sx={{ mb: 2 }}
+          />
+          <Box sx={{ overflowX: "auto" }}>
+            <Table sx={{ minWidth: "800px" }}>
               <TableHead>
                 <TableRow>
                   <TableCell>#</TableCell>
@@ -189,9 +216,7 @@ const MonitoringDetailsPage = () => {
                       Status
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell>
-                    Modelo do Sensor
-                  </TableCell>
+                  <TableCell>Modelo do Sensor</TableCell>
                   <TableCell>
                     <TableSortLabel
                       active={orderBy === 'createdAt'}
@@ -201,47 +226,47 @@ const MonitoringDetailsPage = () => {
                       Data/Hora
                     </TableSortLabel>
                   </TableCell>
+                  <TableCell>ID Único</TableCell>
                   <TableCell align="center">Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortedSensors
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((sensor, index) => (
-                    <TableRow hover key={sensor._id}>
-                      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                      <TableCell>{sensor.name}</TableCell>
-                      <TableCell>{sensor.status}</TableCell>
-                      <TableCell>{sensorType}</TableCell>
-                      <TableCell>{new Date(sensor.createdAt).toLocaleString()}</TableCell>
-                      <TableCell align="center">
-                        <IconButton
-                          aria-label="view"
-                          onClick={() => handleViewSensor(sensor._id)}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="edit"
-                          onClick={() => handleEditSensor(sensor._id)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => handleDeleteSensor(sensor._id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {paginatedSensors.map((sensor, index) => (
+                  <TableRow hover key={sensor._id}>
+                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>{sensor.name}</TableCell>
+                    <TableCell>{sensor.status}</TableCell>
+                    <TableCell>{sensorType}</TableCell>
+                    <TableCell>{new Date(sensor.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>{sensor._id}</TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        aria-label="view"
+                        onClick={() => handleEditSensor(sensor._id)}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="edit"
+                        onClick={() => handleEditSensor(sensor._id)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        onClick={() => handleDeleteSensor(sensor._id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </Box>
           <TablePagination
             component="div"
-            count={sensors.length}
+            count={filteredSensors.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
@@ -249,7 +274,7 @@ const MonitoringDetailsPage = () => {
             rowsPerPageOptions={[5, 10, 25]}
           />
         </Paper>
-      </Container>
+      </Box>
     </Box>
   );
 };

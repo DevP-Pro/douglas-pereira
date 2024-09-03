@@ -42,65 +42,89 @@ const AddMachinePage = () => {
   ];
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb' }}>
       <Sidebar />
-      <Container maxWidth="sm" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Paper elevation={3} sx={{ padding: 4, width: '100%' }}>
-          <Typography variant="h5" component="h1" align="center" gutterBottom>
+      <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Paper elevation={3} sx={{ padding: 4, width: '100%', borderRadius: 2 }}>
+          <Typography variant="h6" component="h1" gutterBottom sx={{ color: '#3f51b5', fontWeight: 500 }}>
             Adicionar Nova Máquina
           </Typography>
-          <TextField
-            fullWidth
-            label="Nome da Máquina"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            margin="normal"
-            variant="outlined"
-          />
-          <TextField
-            select
-            fullWidth
-            label="Tipo de Máquina"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            margin="normal"
-            variant="outlined"
-          >
-            {machineTypes.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <TextField
-            select
-            fullWidth
-            label="Status da Máquina"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            margin="normal"
-            variant="outlined"
-          >
-            {machineStatuses.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label}
-              </MenuItem>
-            ))}
-          </TextField>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
-            <Button
-              variant="contained"
-              color="secondary"
-              onClick={handleBack}
+          <Typography variant="body2" gutterBottom sx={{ color: '#6b7280', marginBottom: 2 }}>
+            As informações podem ser editadas posteriormente.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Nome da Máquina"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              margin="normal"
+              variant="outlined"
+            />
+            <TextField
+              select
+              fullWidth
+              label="Tipo de Máquina"
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              margin="normal"
+              variant="outlined"
             >
-              Voltar
-            </Button>
+              {machineTypes.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              select
+              fullWidth
+              label="Status da Máquina"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              margin="normal"
+              variant="outlined"
+            >
+              {machineStatuses.map((option) => (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
             <Button
               variant="contained"
               color="primary"
               onClick={handleSubmit}
+              sx={{
+                backgroundColor: '#6366f1',
+                color: '#ffffff',
+                '&:hover': {
+                  backgroundColor: '#4f46e5',
+                },
+                textTransform: 'none',
+                borderRadius: '8px',
+              }}
             >
               Criar Máquina
+            </Button>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2 }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={() => navigate(-1)}
+              sx={{
+                borderColor: '#d1d5db',
+                color: '#6b7280',
+                textTransform: 'none',
+                borderRadius: '8px',
+              }}
+            >
+              Voltar
             </Button>
           </Box>
         </Paper>
