@@ -49,8 +49,6 @@ const MachinesPage = () => {
   );
 
   const handleViewDetails = (id: string) => {
-    console.log(`View details of machine ${id}`);
-    // Aqui você pode adicionar a lógica de navegação ou exibição dos detalhes
     navigate(`/machines/${id}`);
   };
 
@@ -68,6 +66,10 @@ const MachinesPage = () => {
     } catch (error) {
       console.error('Erro ao excluir máquina:', error);
     }
+  };
+
+  const handleEditMachine = (id: string) => {
+    navigate(`/machines/${id}/edit`);
   };
   
 
@@ -104,9 +106,9 @@ const MachinesPage = () => {
           rows={filteredMachines}
           page={0}
           rowsPerPage={5}
-          onEdit={(id) => console.log(`Delete machine ${id}`)}
+          onEdit={(id) => handleEditMachine(id)}
           onDelete={(id) => handleDeleteMachine(id)}
-          onView={(id) => navigate(`/machines/${id}`)}
+          onView={(id) => handleViewDetails(id)}
         />
       </Box>
     </Box>
