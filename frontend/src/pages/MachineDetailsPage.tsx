@@ -16,6 +16,7 @@ import {
   CssBaseline,
   TextField,
   InputAdornment,
+  Divider,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,6 +25,9 @@ import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import Sidebar from "../components/Sidebar";
 import axios from "axios";
+import MainLayout from "../components/MainLayout";
+import { Helmet } from "react-helmet-async";
+import CustomBreadcrumbs from "../components/CustomBreadcrumbs";
 
 interface Monitoring {
   _id: string;
@@ -44,8 +48,8 @@ const MachineDetailsPage = () => {
   const [machine, setMachine] = useState<Machine | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-  const [orderBy, setOrderBy] = useState<keyof Monitoring>('name');
+  const [order, setOrder] = useState<"asc" | "desc">("asc");
+  const [orderBy, setOrderBy] = useState<keyof Monitoring>("name");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -128,8 +132,8 @@ const MachineDetailsPage = () => {
   };
 
   const handleRequestSort = (property: keyof Monitoring) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -141,8 +145,8 @@ const MachineDetailsPage = () => {
   const sortedMonitorings = filteredMonitorings.slice().sort((a, b) => {
     const aValue = a[orderBy];
     const bValue = b[orderBy];
-    if (aValue < bValue) return order === 'asc' ? -1 : 1;
-    if (aValue > bValue) return order === 'asc' ? 1 : -1;
+    if (aValue < bValue) return order === "asc" ? -1 : 1;
+    if (aValue > bValue) return order === "asc" ? 1 : -1;
     return 0;
   });
 
@@ -151,11 +155,23 @@ const MachineDetailsPage = () => {
     page * rowsPerPage + rowsPerPage
   );
 
+  const breadcrumbs = [
+    { label: "Máquinas", href: "/machines" },
+    { label: "Monitoramentos" },
+  ];
+
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden" }}>
-      <CssBaseline />
-      <Sidebar />
+    <MainLayout>
+      <Helmet>
+        <title>Gerenciamento de Monitoramentos</title>
+      </Helmet>
+
+      <CustomBreadcrumbs breadcrumbs={breadcrumbs} />
+      <Divider />
       <Box sx={{ flexGrow: 1, p: 3, overflowY: "auto" }}>
+        <Typography variant="h4" gutterBottom>
+          Detalhes da Máquina: {machine?.name} ({machine?.type})
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -164,20 +180,6 @@ const MachineDetailsPage = () => {
             mb: 2,
           }}
         >
-          <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
-            Detalhes da Máquina: {machine?.name} ({machine?.type})
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={handleAddMonitoring}
-            sx={{ bgcolor: '#6366F1' }}
-          >
-            Novo Monitoramento
-          </Button>
-        </Box>
-        <Paper elevation={3} sx={{ padding: 2 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -190,9 +192,48 @@ const MachineDetailsPage = () => {
                   <SearchIcon />
                 </InputAdornment>
               ),
+              sx: {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  border: "none", // Desativa o outline
+                },
+              },
             }}
-            sx={{ mb: 2 }}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: "4px",
+              boxShadow: "3px 6px 11px rgba(0, 0, 0, 0.1)",
+              width: "300px",
+              "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  border: "none", // Desativa o outline quando o campo está focado
+                },
+            }}
           />
+          <Typography
+            variant="h5"
+            component="h1"
+            sx={{ fontWeight: 500 }}
+          ></Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleAddMonitoring}
+            sx={{
+              backgroundColor: "#6366f1",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#4f46e5",
+              },
+              borderRadius: "8px",
+              textTransform: "none",
+              padding: "8px 16px",
+            }}
+          >
+            Novo Monitoramento
+          </Button>
+        </Box>
+        <Paper elevation={3} sx={{ padding: 2 }}>
           <Box sx={{ overflowX: "auto" }}>
             <Table sx={{ minWidth: "800px" }}>
               <TableHead>
@@ -200,18 +241,18 @@ const MachineDetailsPage = () => {
                   <TableCell>#</TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'name'}
+                      active={orderBy === "name"}
                       direction={order}
-                      onClick={() => handleRequestSort('name')}
+                      onClick={() => handleRequestSort("name")}
                     >
                       Nome do Ponto de Monitoramento
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'type'}
+                      active={orderBy === "type"}
                       direction={order}
-                      onClick={() => handleRequestSort('type')}
+                      onClick={() => handleRequestSort("type")}
                     >
                       Modelo do sensor
                     </TableSortLabel>
@@ -258,10 +299,12 @@ const MachineDetailsPage = () => {
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage="Linhas por página"
+            labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
           />
         </Paper>
       </Box>
-    </Box>
+    </MainLayout>
   );
 };
 

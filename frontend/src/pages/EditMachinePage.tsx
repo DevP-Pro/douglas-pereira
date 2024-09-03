@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline, MenuItem, Container, Paper, Typography } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem, Container, Paper, Typography, Divider } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
+import MainLayout from '../components/MainLayout';
+import { Helmet } from 'react-helmet-async';
+import CustomBreadcrumbs from '../components/CustomBreadcrumbs';
 
 const EditMachinePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -60,10 +63,20 @@ const EditMachinePage = () => {
     { value: 'Em Manutenção', label: 'Em Manutenção' },
   ];
 
+  const breadcrumbs = [
+    { label: 'Máquinas', href: '/machines' },
+    { label: 'Editar Máquina' }
+  ];
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb' }}>
-      <CssBaseline />
-      <Sidebar />
+    <MainLayout>
+      <Helmet>
+        <title>Editar Maquina</title>
+      </Helmet>
+      
+      <CustomBreadcrumbs breadcrumbs={breadcrumbs} />
+      <Divider />
+      <Box sx={{ display: 'flex', height: '90vh', justifyContent: 'center', alignItems: 'center' }}>
       <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Paper elevation={3} sx={{ padding: 4, width: '100%', borderRadius: 2 }}>
           <Typography variant="h6" component="h1" gutterBottom sx={{ color: '#3f51b5', fontWeight: 500 }}>
@@ -149,7 +162,8 @@ const EditMachinePage = () => {
           </Box>
         </Paper>
       </Container>
-    </Box>
+      </Box>
+    </MainLayout>
   );
 };
 

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
@@ -16,14 +16,18 @@ import {
   CssBaseline,
   TextField,
   InputAdornment,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import Sidebar from '../components/Sidebar';
-import axios from 'axios';
+  Divider,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import AddIcon from "@mui/icons-material/Add";
+import SearchIcon from "@mui/icons-material/Search";
+import Sidebar from "../components/Sidebar";
+import axios from "axios";
+import MainLayout from "../components/MainLayout";
+import { Helmet } from "react-helmet-async";
+import CustomBreadcrumbs from "../components/CustomBreadcrumbs";
 
 interface Sensor {
   _id: string;
@@ -32,24 +36,27 @@ interface Sensor {
   createdAt: string;
 }
 
-type Order = 'asc' | 'desc';
+type Order = "asc" | "desc";
 
 const MonitoringDetailsPage = () => {
-  const { id, monitoringId } = useParams<{ id: string; monitoringId: string }>();
-  const [monitoringName, setMonitoringName] = useState('');
-  const [sensorType, setSensorType] = useState('');
+  const { id, monitoringId } = useParams<{
+    id: string;
+    monitoringId: string;
+  }>();
+  const [monitoringName, setMonitoringName] = useState("");
+  const [sensorType, setSensorType] = useState("");
   const [sensors, setSensors] = useState<Sensor[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [order, setOrder] = useState<Order>('asc');
-  const [orderBy, setOrderBy] = useState<keyof Sensor>('name');
+  const [order, setOrder] = useState<Order>("asc");
+  const [orderBy, setOrderBy] = useState<keyof Sensor>("name");
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMonitoringDetails = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const config = {
           headers: { Authorization: `Bearer ${token}` },
         };
@@ -60,13 +67,13 @@ const MonitoringDetailsPage = () => {
         setMonitoringName(response.data.name);
         setSensorType(response.data.type);
       } catch (error) {
-        console.error('Erro ao buscar detalhes do monitoramento:', error);
+        console.error("Erro ao buscar detalhes do monitoramento:", error);
       }
     };
 
     const fetchSensors = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const config = {
           headers: { Authorization: `Bearer ${token}` },
         };
@@ -76,7 +83,7 @@ const MonitoringDetailsPage = () => {
         );
         setSensors(response.data);
       } catch (error) {
-        console.error('Erro ao buscar sensores:', error);
+        console.error("Erro ao buscar sensores:", error);
       }
     };
 
@@ -85,8 +92,8 @@ const MonitoringDetailsPage = () => {
   }, [id, monitoringId]);
 
   const handleRequestSort = (property: keyof Sensor) => {
-    const isAsc = orderBy === property && order === 'asc';
-    setOrder(isAsc ? 'desc' : 'asc');
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
   };
 
@@ -95,12 +102,14 @@ const MonitoringDetailsPage = () => {
   };
 
   const handleEditSensor = (sensorId: string) => {
-    navigate(`/machines/${id}/monitorings/${monitoringId}/sensors/${sensorId}/edit`);
+    navigate(
+      `/machines/${id}/monitorings/${monitoringId}/sensors/${sensorId}/edit`
+    );
   };
 
   const handleDeleteSensor = async (sensorId: string) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
       if (!token) {
         throw new Error("Token não encontrado");
@@ -115,9 +124,9 @@ const MonitoringDetailsPage = () => {
         config
       );
 
-      setSensors(sensors.filter(sensor => sensor._id !== sensorId));
+      setSensors(sensors.filter((sensor) => sensor._id !== sensorId));
     } catch (error) {
-      console.error('Erro ao excluir sensor:', error);
+      console.error("Erro ao excluir sensor:", error);
     }
   };
 
@@ -125,7 +134,9 @@ const MonitoringDetailsPage = () => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
@@ -135,12 +146,12 @@ const MonitoringDetailsPage = () => {
   );
 
   const sortedSensors = filteredSensors.sort((a, b) => {
-    if (orderBy === 'createdAt') {
-      return order === 'asc'
+    if (orderBy === "createdAt") {
+      return order === "asc"
         ? new Date(a[orderBy]).getTime() - new Date(b[orderBy]).getTime()
         : new Date(b[orderBy]).getTime() - new Date(a[orderBy]).getTime();
     } else {
-      return order === 'asc'
+      return order === "asc"
         ? a[orderBy].localeCompare(b[orderBy])
         : b[orderBy].localeCompare(a[orderBy]);
     }
@@ -151,11 +162,24 @@ const MonitoringDetailsPage = () => {
     page * rowsPerPage + rowsPerPage
   );
 
+  const breadcrumbs = [
+    { label: "Máquinas", href: "/machines" },
+    { label: "Monitoramento", href: `/machines/${id}` },
+    { label: "Sensores" },
+  ];
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh', overflow: "hidden" }}>
-      <CssBaseline />
-      <Sidebar />
+    <MainLayout>
+      <Helmet>
+        <title>Gerenciamento de Monitoramentos</title>
+      </Helmet>
+
+      <CustomBreadcrumbs breadcrumbs={breadcrumbs} />
+      <Divider />
       <Box sx={{ flexGrow: 1, p: 3, overflowY: "auto" }}>
+        <Typography variant="h4" gutterBottom>
+          {monitoringName} - {sensorType}
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -164,20 +188,6 @@ const MonitoringDetailsPage = () => {
             mb: 2,
           }}
         >
-          <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
-            {monitoringName} - {sensorType}
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<AddIcon />}
-            onClick={handleAddSensor}
-            sx={{ bgcolor: '#6366F1' }}
-          >
-            Novo Sensor
-          </Button>
-        </Box>
-        <Paper elevation={3} sx={{ padding: 2 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -190,9 +200,48 @@ const MonitoringDetailsPage = () => {
                   <SearchIcon />
                 </InputAdornment>
               ),
+              sx: {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  border: "none", // Desativa o outline
+                },
+              },
             }}
-            sx={{ mb: 2 }}
+            sx={{
+              backgroundColor: "white",
+              borderRadius: "4px",
+              boxShadow: "3px 6px 11px rgba(0, 0, 0, 0.1)",
+              width: "300px",
+              "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  border: "none", // Desativa o outline quando o campo está focado
+                },
+            }}
           />
+          <Typography
+            variant="h5"
+            component="h1"
+            sx={{ fontWeight: 500 }}
+          ></Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<AddIcon />}
+            onClick={handleAddSensor}
+            sx={{
+              backgroundColor: "#6366f1",
+              color: "#ffffff",
+              "&:hover": {
+                backgroundColor: "#4f46e5",
+              },
+              borderRadius: "8px",
+              textTransform: "none",
+              padding: "8px 16px",
+            }}
+          >
+            Novo Sensor
+          </Button>
+        </Box>
+        <Paper elevation={3} sx={{ padding: 2 }}>
           <Box sx={{ overflowX: "auto" }}>
             <Table sx={{ minWidth: "800px" }}>
               <TableHead>
@@ -200,18 +249,18 @@ const MonitoringDetailsPage = () => {
                   <TableCell>#</TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'name'}
-                      direction={orderBy === 'name' ? order : 'asc'}
-                      onClick={() => handleRequestSort('name')}
+                      active={orderBy === "name"}
+                      direction={orderBy === "name" ? order : "asc"}
+                      onClick={() => handleRequestSort("name")}
                     >
                       Nome do Sensor
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'status'}
-                      direction={orderBy === 'status' ? order : 'asc'}
-                      onClick={() => handleRequestSort('status')}
+                      active={orderBy === "status"}
+                      direction={orderBy === "status" ? order : "asc"}
+                      onClick={() => handleRequestSort("status")}
                     >
                       Status
                     </TableSortLabel>
@@ -219,11 +268,11 @@ const MonitoringDetailsPage = () => {
                   <TableCell>Modelo do Sensor</TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={orderBy === 'createdAt'}
-                      direction={orderBy === 'createdAt' ? order : 'asc'}
-                      onClick={() => handleRequestSort('createdAt')}
+                      active={orderBy === "createdAt"}
+                      direction={orderBy === "createdAt" ? order : "asc"}
+                      onClick={() => handleRequestSort("createdAt")}
                     >
-                      Data/Hora
+                      Última Alteração
                     </TableSortLabel>
                   </TableCell>
                   <TableCell>ID Único</TableCell>
@@ -237,7 +286,9 @@ const MonitoringDetailsPage = () => {
                     <TableCell>{sensor.name}</TableCell>
                     <TableCell>{sensor.status}</TableCell>
                     <TableCell>{sensorType}</TableCell>
-                    <TableCell>{new Date(sensor.createdAt).toLocaleString()}</TableCell>
+                    <TableCell>
+                      {new Date(sensor.createdAt).toLocaleString()}
+                    </TableCell>
                     <TableCell>{sensor._id}</TableCell>
                     <TableCell align="center">
                       <IconButton
@@ -272,10 +323,14 @@ const MonitoringDetailsPage = () => {
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             rowsPerPageOptions={[5, 10, 25]}
+            labelRowsPerPage="Linhas por página"
+            labelDisplayedRows={({ from, to, count }) =>
+              `${from}-${to} de ${count}`
+            }
           />
         </Paper>
       </Box>
-    </Box>
+    </MainLayout>
   );
 };
 

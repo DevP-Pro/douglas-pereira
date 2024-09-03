@@ -123,7 +123,7 @@ export function MachinesTable({
                   direction={order}
                   onClick={() => handleRequestSort('updatedAt')}
                 >
-                  Data de Modificação
+                  Última Alteração
                 </TableSortLabel>
               </TableCell>
               <TableCell align="center">Ações</TableCell>
@@ -140,7 +140,7 @@ export function MachinesTable({
                 </TableCell>
                 <TableCell>{row.type}</TableCell>
                 <TableCell>{row.status}</TableCell>
-                <TableCell>{dayjs(row.updatedAt).format('MMM D, YYYY')}</TableCell>
+                <TableCell>{new Date(row.updatedAt).toLocaleString()}</TableCell>
                 <TableCell align="center">
                   <IconButton onClick={() => onView && onView(row._id)}>
                     <VisibilityIcon />
@@ -166,6 +166,8 @@ export function MachinesTable({
         rowsPerPageOptions={[5, 10, 25]}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        labelRowsPerPage="Linhas por página"
+        labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
       />
     </Card>
   );

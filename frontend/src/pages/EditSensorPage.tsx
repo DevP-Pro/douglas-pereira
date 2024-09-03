@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline, MenuItem, Container, Paper, Typography } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem, Container, Paper, Typography, Divider } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
+import MainLayout from '../components/MainLayout';
+import { Helmet } from 'react-helmet-async';
+import CustomBreadcrumbs from '../components/CustomBreadcrumbs';
 
 const sensorStatusOptions = ["Ativo", "Inativo", "Em Manutenção"];
 
@@ -59,11 +62,30 @@ const EditSensorPage = () => {
     }
   };
 
+  const breadcrumbs = [
+    { label: "Máquinas", href: "/machines" },
+    { label: "Monitoramento", href: `/machines/${id}` },
+    { label: "Sensores", href: `/machines/${id}/monitorings/${monitoringId}` },
+    { label: "Editar Sensor" },
+  ];
+
   return (
-    <Box sx={{ display: 'flex', height: '100vh', backgroundColor: '#f9fafb' }}>
-      <CssBaseline />
-      <Sidebar />
-      <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+    <MainLayout>
+      <Helmet>
+        <title>Novo Sensor</title>
+      </Helmet>
+
+      <CustomBreadcrumbs breadcrumbs={breadcrumbs} />
+      <Divider />
+      <Box
+        sx={{
+          display: "flex",
+          height: "90vh",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Container maxWidth="md" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Paper elevation={3} sx={{ padding: 4, width: '100%', borderRadius: 2 }}>
           <Typography variant="h6" component="h1" gutterBottom sx={{ color: '#3f51b5', fontWeight: 500 }}>
             Editar Sensor
@@ -136,6 +158,7 @@ const EditSensorPage = () => {
         </Paper>
       </Container>
     </Box>
+    </MainLayout>
   );
 };
 

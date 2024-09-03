@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { MachinesTable } from "./MachinesTable"; // Ajuste o caminho conforme necessário
-import { Button, TextField, Box, CssBaseline, Typography, InputAdornment } from "@mui/material";
+import {
+  Button,
+  TextField,
+  Box,
+  CssBaseline,
+  Typography,
+  InputAdornment,
+  Breadcrumbs,
+  Divider,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 import Sidebar from "../components/Sidebar";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import MainLayout from "../components/MainLayout";
+import { Helmet } from "react-helmet-async";
+import CustomBreadcrumbs from "../components/CustomBreadcrumbs";
 
 interface Machine {
   _id: string;
@@ -73,10 +85,18 @@ const MachinesPage = () => {
     navigate(`/machines/${id}/edit`);
   };
 
+  const breadcrumbs = [
+    { label: 'Máquinas' } // Último breadcrumb sem href
+  ];
+
   return (
-    <Box sx={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "#f9fafb" }}>
-      <CssBaseline />
-      <Sidebar />
+    <MainLayout>
+      <Helmet>
+        <title>Gerenciamento de Maquinas</title>
+      </Helmet>
+      
+      <CustomBreadcrumbs breadcrumbs={breadcrumbs} />
+      <Divider />
       <Box sx={{ flexGrow: 1, p: 3, overflowY: "auto" }}>
         <Typography variant="h4" gutterBottom>
           Máquinas
@@ -90,8 +110,9 @@ const MachinesPage = () => {
           }}
         >
           <TextField
+            fullWidth
             variant="outlined"
-            placeholder="Buscar máquina"
+            placeholder="Buscar monitoramento"
             value={searchQuery}
             onChange={handleSearch}
             InputProps={{
@@ -100,12 +121,21 @@ const MachinesPage = () => {
                   <SearchIcon />
                 </InputAdornment>
               ),
+              sx: {
+                "& .MuiOutlinedInput-notchedOutline": {
+                  border: "none", // Desativa o outline
+                },
+              },
             }}
             sx={{
               backgroundColor: "white",
               borderRadius: "4px",
-              boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
+              boxShadow: "3px 6px 11px rgba(0, 0, 0, 0.1)",
               width: "300px",
+              "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  border: "none", // Desativa o outline quando o campo está focado
+                },
             }}
           />
           <Button
@@ -137,7 +167,7 @@ const MachinesPage = () => {
           onView={(id) => handleViewDetails(id)}
         />
       </Box>
-    </Box>
+    </MainLayout>
   );
 };
 
