@@ -12,6 +12,7 @@ import AddMonitoringPage from "./pages/AddMonitoringPage";
 import MonitoringDetailsPage from "./pages/MonitoringDetailsPage";
 import AddSensorPage from "./pages/AddSensorPage";
 import EditSensorPage from "./pages/EditSensorPage";
+import EditMonitoringPage from "./pages/EditMonitoringPage";
 
 const App = () => {
   return (
@@ -82,6 +83,14 @@ const App = () => {
           element={
             <PrivateRoute>
               <MonitoringDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/:id/monitorings/:monitoringId/edit"
+          element={
+            <PrivateRoute>
+              <EditMonitoringPage />
             </PrivateRoute>
           }
         />

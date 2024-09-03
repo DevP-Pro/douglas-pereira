@@ -62,8 +62,7 @@ const MachineDetailsPage = () => {
   };
 
   const handleEditMonitoring = (monitoringId: string) => {
-    console.log(`Editar monitoramento: ${monitoringId}`);
-    // Aqui você pode redirecionar para a página de edição de monitoramento ou abrir um modal de edição
+    navigate(`/machines/${id}/monitorings/${monitoringId}/edit`);
   };
 
   // Função para apagar o monitoramento

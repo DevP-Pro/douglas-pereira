@@ -79,4 +79,37 @@ const deleteMonitoring = asyncHandler(async (req, res) => {
   }
 });
 
-export { getMonitoringsForMachine, addMonitoring, deleteMonitoring };
+// Função para buscar o monitoramento por ID
+const getMonitoringById = asyncHandler(async (req, res) => {
+  const monitoring = await Monitoring.findById(req.params.monitoringId);
+
+  if (monitoring) {
+    res.json(monitoring);
+  } else {
+    res.status(404);
+    throw new Error('Monitoring not found');
+  }
+});
+
+// @desc Update a monitoring
+// @route PUT /api/machines/:machineId/monitorings/:monitoringId
+// @access Private
+const updateMonitoring = asyncHandler(async (req, res) => {
+  const { name, type } = req.body;
+  const monitoringId = req.params.monitoringId;
+
+  const monitoring = await Monitoring.findById(monitoringId);
+
+  if (monitoring) {
+    monitoring.name = name || monitoring.name;
+    monitoring.type = type || monitoring.type;
+
+    const updatedMonitoring = await monitoring.save();
+    res.json(updatedMonitoring);
+  } else {
+    res.status(404);
+    throw new Error("Monitoring not found");
+  }
+});
+
+export { getMonitoringsForMachine, addMonitoring, deleteMonitoring, getMonitoringById, updateMonitoring };
