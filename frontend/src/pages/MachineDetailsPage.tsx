@@ -13,6 +13,7 @@ import {
   TableRow,
   TablePagination,
   IconButton,
+  TableSortLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -29,32 +30,48 @@ interface Monitoring {
   updatedAt: string;
 }
 
+interface Machine {
+  name: string;
+  type: string;
+}
+
 const MachineDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const [monitorings, setMonitorings] = useState<Monitoring[]>([]);
+  const [machine, setMachine] = useState<Machine | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
+  const [orderBy, setOrderBy] = useState<keyof Monitoring>('name');
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMonitorings = async () => {
+    const fetchMonitoringsAndMachine = async () => {
       try {
         const token = localStorage.getItem("token");
         const config = {
           headers: { Authorization: `Bearer ${token}` },
         };
+
+        // Fetch monitorings
         const response = await axios.get(
           `http://localhost:5000/api/machines/${id}/monitorings`,
           config
         );
         setMonitorings(response.data);
-        console.info(response.data);
+
+        // Fetch machine details
+        const machineResponse = await axios.get(
+          `http://localhost:5000/api/machines/${id}`,
+          config
+        );
+        setMachine(machineResponse.data);
       } catch (error) {
-        console.error("Erro ao buscar monitoramentos:", error);
+        console.error("Erro ao buscar monitoramentos ou máquina:", error);
       }
     };
 
-    fetchMonitorings();
+    fetchMonitoringsAndMachine();
   }, [id]);
 
   const handleAddMonitoring = () => {
@@ -65,7 +82,6 @@ const MachineDetailsPage = () => {
     navigate(`/machines/${id}/monitorings/${monitoringId}/edit`);
   };
 
-  // Função para apagar o monitoramento
   const handleDeleteMonitoring = async (monitoringId: string) => {
     try {
       const token = localStorage.getItem("token");
@@ -93,7 +109,6 @@ const MachineDetailsPage = () => {
   };
 
   const handleViewMonitoring = (monitoringId: string) => {
-    console.log(`Visualizar detalhes do monitoramento: ${monitoringId}`);
     navigate(`/machines/${id}/monitorings/${monitoringId}`);
   };
 
@@ -108,13 +123,32 @@ const MachineDetailsPage = () => {
     setPage(0);
   };
 
+  const handleRequestSort = (property: keyof Monitoring) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortedMonitorings = monitorings.slice().sort((a, b) => {
+    const aValue = a[orderBy];
+    const bValue = b[orderBy];
+    if (aValue < bValue) return order === 'asc' ? -1 : 1;
+    if (aValue > bValue) return order === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const paginatedMonitorings = sortedMonitorings.slice(
+    page * rowsPerPage,
+    page * rowsPerPage + rowsPerPage
+  );
+
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Sidebar />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Paper elevation={3} sx={{ padding: 4 }}>
           <Typography variant="h5" component="h1" gutterBottom>
-            Detalhes da Máquina
+            Detalhes da Máquina: {machine?.name} ({machine?.type})
           </Typography>
           <Button
             variant="contained"
@@ -128,45 +162,56 @@ const MachineDetailsPage = () => {
             <Table sx={{ minWidth: "800px" }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Tipo de Sensor</TableCell>
-                  <TableCell>Leitura</TableCell>
-                  <TableCell>Data/Hora</TableCell>
-                  <TableCell>Ações</TableCell>{" "}
-                  {/* Coluna para os botões de ação */}
+                  <TableCell>#</TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'name'}
+                      direction={order}
+                      onClick={() => handleRequestSort('name')}
+                    >
+                      Nome do Ponto de Monitoramento
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'type'}
+                      direction={order}
+                      onClick={() => handleRequestSort('type')}
+                    >
+                      Tipo de Monitoramento
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell align="center">Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {monitorings
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((monitoring) => (
-                    <TableRow key={monitoring._id}>
-                      <TableCell>{monitoring.name}</TableCell>
-                      <TableCell>{monitoring.type}</TableCell>
-                      <TableCell>
-                        {new Date(monitoring.updatedAt).toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <IconButton
-                          aria-label="view"
-                          onClick={() => handleViewMonitoring(monitoring._id)}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="edit"
-                          onClick={() => handleEditMonitoring(monitoring._id)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => handleDeleteMonitoring(monitoring._id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                {paginatedMonitorings.map((monitoring, index) => (
+                  <TableRow hover key={monitoring._id}>
+                    <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                    <TableCell>{monitoring.name}</TableCell>
+                    <TableCell>{monitoring.type}</TableCell>
+                    <TableCell align="center">
+                      <IconButton
+                        aria-label="view"
+                        onClick={() => handleViewMonitoring(monitoring._id)}
+                      >
+                        <VisibilityIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="edit"
+                        onClick={() => handleEditMonitoring(monitoring._id)}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        aria-label="delete"
+                        onClick={() => handleDeleteMonitoring(monitoring._id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </Box>

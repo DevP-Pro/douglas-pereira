@@ -15,8 +15,16 @@ const getMachines = asyncHandler(async (req, res) => {
 // @route POST /api/machines
 // @access Private
 const createMachine = asyncHandler(async (req, res) => {
-  const { name, status } = req.body;
-  const machine = new Machine({ name, status });
+  const { name, type, status } = req.body;
+
+  // Validação do tipo
+  const validTypes = ["Bomba", "Ventilador"];
+  if (!validTypes.includes(type)) {
+    res.status(400);
+    throw new Error('Tipo de máquina inválido. Selecione entre "Bomba" ou "Ventilador".');
+  }
+
+  const machine = new Machine({ name, type, status });
 
   const createdMachine = await machine.save();
   res.status(201).json(createdMachine);
@@ -67,12 +75,20 @@ const getMachineById = asyncHandler(async (req, res) => {
 // @route PUT /api/machines/:id
 // @access Private
 const updateMachine = asyncHandler(async (req, res) => {
-  const { name, status } = req.body;
+  const { name, type, status } = req.body;
 
   const machine = await Machine.findById(req.params.id);
 
   if (machine) {
+    // Validação do tipo
+    const validTypes = ["Bomba", "Ventilador"];
+    if (!validTypes.includes(type)) {
+      res.status(400);
+      throw new Error('Tipo de máquina inválido. Selecione entre "Bomba" ou "Ventilador".');
+    }
+
     machine.name = name;
+    machine.type = type;
     machine.status = status;
 
     const updatedMachine = await machine.save();

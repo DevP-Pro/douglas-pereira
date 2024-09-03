@@ -8,7 +8,7 @@ const monitoringSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      required: true,
+      required: true, // Propriedade 'type' que será usada para o tipo do modelo de sensor
     },
     machine: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
 const EditMachinePage = () => {
-  const { id } = useParams<{ id: string }>(); // Pega o ID da máquina pela URL
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
   const [name, setName] = useState('');
-  const [status, setStatus] = useState('');
+  const [type, setType] = useState('Bomba');
+  const [status, setStatus] = useState('Ativa');
 
   useEffect(() => {
     const fetchMachineDetails = async () => {
@@ -21,6 +22,7 @@ const EditMachinePage = () => {
         const response = await axios.get(`http://localhost:5000/api/machines/${id}`, config);
         const machine = response.data;
         setName(machine.name);
+        setType(machine.type);
         setStatus(machine.status);
       } catch (error) {
         console.error('Erro ao buscar dados da máquina:', error);
@@ -37,15 +39,26 @@ const EditMachinePage = () => {
         headers: { Authorization: `Bearer ${token}` },
       };
 
-      const machineData = { name, status };
+      const machineData = { name, type, status };
 
       await axios.put(`http://localhost:5000/api/machines/${id}`, machineData, config);
 
-      navigate(`/machines`); // Redireciona de volta para a lista de máquinas
+      navigate(`/machines`);
     } catch (error) {
       console.error('Erro ao editar máquina:', error);
     }
   };
+
+  const machineTypes = [
+    { value: 'Bomba', label: 'Bomba' },
+    { value: 'Ventilador', label: 'Ventilador' },
+  ];
+
+  const machineStatuses = [
+    { value: 'Ativa', label: 'Ativa' },
+    { value: 'Inativa', label: 'Inativa' },
+    { value: 'Em Manutenção', label: 'Em Manutenção' },
+  ];
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -62,13 +75,35 @@ const EditMachinePage = () => {
             onChange={(e) => setName(e.target.value)}
           />
           <TextField
+            select
+            fullWidth
+            label="Tipo de Máquina"
+            margin="normal"
+            variant="outlined"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+          >
+            {machineTypes.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
             fullWidth
             label="Status da Máquina"
             margin="normal"
             variant="outlined"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-          />
+          >
+            {machineStatuses.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
           <Button
             fullWidth
             variant="contained"
@@ -82,7 +117,7 @@ const EditMachinePage = () => {
             fullWidth
             variant="outlined"
             sx={{ mt: 1 }}
-            onClick={() => navigate(-1)} // Voltar para a página anterior
+            onClick={() => navigate(-1)}
           >
             Voltar
           </Button>

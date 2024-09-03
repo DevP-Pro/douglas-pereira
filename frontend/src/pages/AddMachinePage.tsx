@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Container, Paper, Typography } from '@mui/material';
+import { Box, Button, TextField, Container, Paper, Typography, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 
 const AddMachinePage = () => {
   const [name, setName] = useState('');
-  const [status, setStatus] = useState('');
+  const [type, setType] = useState('Bomba');
+  const [status, setStatus] = useState('Ativa');
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
@@ -16,10 +17,9 @@ const AddMachinePage = () => {
         headers: { Authorization: `Bearer ${token}` },
       };
 
-      const machineData = { name, status };
+      const machineData = { name, type, status };
       await axios.post('http://localhost:5000/api/machines', machineData, config);
 
-      // Redirecionar de volta para a página de máquinas
       navigate('/machines');
     } catch (error) {
       console.error('Erro ao criar máquina:', error);
@@ -27,8 +27,19 @@ const AddMachinePage = () => {
   };
 
   const handleBack = () => {
-    navigate(-1); // Volta para a página anterior
+    navigate(-1);
   };
+
+  const machineTypes = [
+    { value: 'Bomba', label: 'Bomba' },
+    { value: 'Ventilador', label: 'Ventilador' },
+  ];
+
+  const machineStatuses = [
+    { value: 'Ativa', label: 'Ativa' },
+    { value: 'Inativa', label: 'Inativa' },
+    { value: 'Em Manutenção', label: 'Em Manutenção' },
+  ];
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -47,13 +58,35 @@ const AddMachinePage = () => {
             variant="outlined"
           />
           <TextField
+            select
+            fullWidth
+            label="Tipo de Máquina"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            margin="normal"
+            variant="outlined"
+          >
+            {machineTypes.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
             fullWidth
             label="Status da Máquina"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             margin="normal"
             variant="outlined"
-          />
+          >
+            {machineStatuses.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label}
+              </MenuItem>
+            ))}
+          </TextField>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
             <Button
               variant="contained"

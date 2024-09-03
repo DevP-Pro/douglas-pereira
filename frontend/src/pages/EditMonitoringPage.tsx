@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
+const sensorModels = ["TcAg", "TcAs", "HF+"];
+
 const EditMonitoringPage = () => {
-  const { id, monitoringId } = useParams<{ id: string; monitoringId: string }>(); // Pegando os IDs da máquina e do monitoramento pela URL
+  const { id, monitoringId } = useParams<{ id: string; monitoringId: string }>();
   const navigate = useNavigate();
   
   const [name, setName] = useState('');
   const [type, setType] = useState('');
+  const [filteredSensorModels, setFilteredSensorModels] = useState<string[]>(sensorModels);
+  const [machineType, setMachineType] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchMonitoringDetails = async () => {
@@ -25,6 +29,15 @@ const EditMonitoringPage = () => {
         const { name, type } = response.data;
         setName(name);
         setType(type);
+
+        // Fetch machine details to apply filtering based on machine type
+        const machineResponse = await axios.get(`http://localhost:5000/api/machines/${id}`, config);
+        const machine = machineResponse.data;
+        setMachineType(machine.type);
+
+        if (machine.type === "Bomba") {
+          setFilteredSensorModels(sensorModels.filter(model => model !== "TcAg" && model !== "TcAs"));
+        }
       } catch (error) {
         console.error('Erro ao buscar detalhes do monitoramento:', error);
       }
@@ -66,20 +79,29 @@ const EditMonitoringPage = () => {
         <Box component="form" sx={{ maxWidth: '500px', width: '100%' }}>
           <TextField
             fullWidth
-            label="Monitoring Name"
+            label="Nome do Ponto de Monitoramento"
             margin="normal"
             variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <TextField
             fullWidth
-            label="Monitoring Type"
+            select
+            label="Modelo de Sensor"
             margin="normal"
             variant="outlined"
             value={type}
             onChange={(e) => setType(e.target.value)}
-          />
+            required
+          >
+            {filteredSensorModels.map((model) => (
+              <MenuItem key={model} value={model}>
+                {model}
+              </MenuItem>
+            ))}
+          </TextField>
           <Button
             fullWidth
             variant="contained"
@@ -87,15 +109,15 @@ const EditMonitoringPage = () => {
             sx={{ mt: 3 }}
             onClick={handleSave}
           >
-            Save Monitoring
+            Salvar Monitoramento
           </Button>
           <Button
             fullWidth
             variant="outlined"
             sx={{ mt: 1 }}
-            onClick={() => navigate(-1)} // Voltar para a página anterior
+            onClick={() => navigate(-1)}
           >
-            Back
+            Voltar
           </Button>
         </Box>
       </Box>

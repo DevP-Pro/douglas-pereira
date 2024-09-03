@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import { Box, Button, TextField, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 const MachineFormPage = () => {
   const [name, setName] = useState('');
   const [status, setStatus] = useState('');
+  const [type, setType] = useState('');  // Adiciona o estado para o tipo
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -16,6 +17,7 @@ const MachineFormPage = () => {
           const response = await axios.get(`/api/machines/${id}`);
           setName(response.data.name);
           setStatus(response.data.status);
+          setType(response.data.type); // Adiciona o tipo ao estado
         } catch (error) {
           console.error('Error fetching machine:', error);
         }
@@ -28,7 +30,7 @@ const MachineFormPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const machine = { name, status };
+    const machine = { name, status, type };
 
     try {
       if (id) {
@@ -56,6 +58,18 @@ const MachineFormPage = () => {
           margin="normal"
           required
         />
+        <FormControl fullWidth margin="normal">
+          <InputLabel id="machine-type-label">Tipo de Máquina</InputLabel>
+          <Select
+            labelId="machine-type-label"
+            value={type}
+            onChange={(e) => setType(e.target.value)}
+            required
+          >
+            <MenuItem value="Bomba">Bomba</MenuItem>
+            <MenuItem value="Ventilador">Ventilador</MenuItem>
+          </Select>
+        </FormControl>
         <TextField
           fullWidth
           label="Status"

@@ -1,17 +1,22 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from "mongoose";
 
 export interface IMachine extends Document {
   name: string;
+  type: string;
   status: string;
   createdAt: Date;
+  updatedAt: Date;
 }
 
-const machineSchema: Schema = new Schema({
-  name: { type: String, required: true },
-  status: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now }
-});
+const machineSchema: Schema = new Schema(
+  {
+    name: { type: String, required: true },
+    type: { type: String, required: true }, // Adicionado campo "type"
+    status: { type: String, required: true },
+  },
+  { timestamps: true }
+);
 
-const MachineModel = mongoose.model<IMachine>('Machine', machineSchema);
+const MachineModel = mongoose.model<IMachine>("Machine", machineSchema);
 
 export default MachineModel;

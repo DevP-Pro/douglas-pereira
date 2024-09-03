@@ -26,38 +26,43 @@ const getMonitoringsForMachine = asyncHandler(async (req, res) => {
 // @access Private
 const addMonitoring = asyncHandler(async (req, res) => {
   try {
-    const { name, type } = req.body;
+    const { name, type } = req.body; // Usando 'type' em vez de 'sensorModel'
     const machineId = req.params.id;
-    console.log("Machine ID:", req.params); // Adiciona um log para verificar o ID
 
-    const machine = await Machine.findById(machineId);
+    const machine = await Machine.findById(machineId).lean();
 
     if (!machine) {
       res.status(404);
       throw new Error("Machine not found");
     }
 
+    console.log("Tipo da Máquina:", machine.type);
+
+    // Verifica se o modelo de sensor é permitido para o tipo de máquina
+    if (machine.type === "Bomba" && (type === "TcAg" || type === "TcAs")) {
+      res.status(400);
+      throw new Error("Sensores 'TcAg' e 'TcAs' não podem ser associados a máquinas do tipo 'Bomba'");
+    }
+
     const monitoring = new Monitoring({
       name,
-      type,
+      type, // Salva o tipo de sensor como 'type'
       machine: machineId,
     });
 
     const createdMonitoring = await monitoring.save();
     res.status(201).json(createdMonitoring);
   } catch (error: unknown) {
-    const typedError = error as any; // Faz o cast do erro para 'any'
+    const typedError = error as any;
     if (axios.isAxiosError(typedError)) {
-      console.error(
-        "Erro ao criar monitoramento:",
-        typedError.response?.data || typedError.message
-      );
+      console.error("Erro ao criar monitoramento:", typedError.response?.data || typedError.message);
     } else {
       console.error("Erro desconhecido:", typedError);
       res.status(500).json({ message: "Erro ao criar monitoramento" });
     }
   }
 });
+
 
 // @desc Delete a monitoring and its associated sensors
 // @route DELETE /api/machines/:machineId/monitorings/:monitoringId
