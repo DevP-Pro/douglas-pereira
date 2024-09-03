@@ -86,12 +86,6 @@ const MachinesPage = () => {
             mb: 2,
           }}
         >
-          <TextField
-            label="Search machine"
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearch}
-          />
           <Button
             variant="contained"
             color="primary"

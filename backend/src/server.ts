@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import connectDB from './config/db';
 import machineRoutes from './routes/machineRoutes';
 import monitoringRoutes from './routes/monitoringRoutes';
-import sensorRoutes from './routes/sensorRoutes'; // Certifique-se de que esta importação está correta
+import sensorRoutes from './routes/sensorRoutes';
+import authRoutes from './routes/authRoutes'; // Importa as rotas de autenticação
 import { protect } from './middleware/authMiddleware';
 
 dotenv.config();
@@ -16,12 +17,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Rotas de autenticação
+app.use('/api/auth', authRoutes); // Configura a rota para autenticação (login e registro)
+
+// Rotas de máquinas, monitoramentos e sensores
 app.use('/api/machines', machineRoutes); // Configure a rota para máquinas
-
 app.use('/api/machines/:id/monitorings', protect, monitoringRoutes); // Configure a rota para monitoramentos
-
-// Ajuste a rota dos sensores para lidar com rotas que incluem sensorId e rotas que não incluem
-app.use('/api/machines/:id/monitorings/:monitoringId/sensors', protect, sensorRoutes);
+app.use('/api/machines/:id/monitorings/:monitoringId/sensors', protect, sensorRoutes); // Configure a rota para sensores
 
 app.get('/', (req, res) => {
   res.send('API is running...');

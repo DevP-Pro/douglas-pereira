@@ -19,13 +19,17 @@ const Sidebar = () => {
         </Typography>
       </Box>
       <List>
-        <ListItem component={Link} to="/overview">
+        <ListItem component={Link} to="/dashboard">
           <ListItemIcon><Home /></ListItemIcon>
-          <ListItemText primary="Overview" />
+          <ListItemText primary="Inicio" />
         </ListItem>
         <ListItem component={Link} to="/machines">
           <ListItemIcon><Settings /></ListItemIcon>
           <ListItemText primary="Máquinas" />
+        </ListItem>
+        <ListItem component={Link} to="/logout">
+          <ListItemIcon><ExitToApp /></ListItemIcon>
+          <ListItemText primary="Logout" />
         </ListItem>
       </List>
     </Drawer>

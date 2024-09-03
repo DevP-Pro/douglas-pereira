@@ -1,16 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem, Typography } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
 
+const statusOptions = ["Ativo", "Inativo", "Manutenção"];
+
 const AddSensorPage = () => {
-  const { id, monitoringId } = useParams<{ id: string; monitoringId: string }>();
+  const { id, monitoringId } = useParams<{ id: string; monitoringId: string }>(); // Pegando os IDs da máquina e do monitoramento pela URL
   const navigate = useNavigate();
-  
+
+  const [monitoringName, setMonitoringName] = useState('');
+  const [sensorModel, setSensorModel] = useState('');
   const [name, setName] = useState('');
-  const [type, setType] = useState(''); // Certifique-se de que este campo está sendo usado
-  const [value, setValue] = useState('');
+  const [status, setStatus] = useState('');
+
+  useEffect(() => {
+    const fetchMonitoringDetails = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const config = {
+          headers: { Authorization: `Bearer ${token}` },
+        };
+        const response = await axios.get(
+          `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}`,
+          config
+        );
+        const { name, type } = response.data;
+        setMonitoringName(name);
+        setSensorModel(type); // Aqui, 'type' representa o modelo do sensor vinculado ao monitoramento
+      } catch (error) {
+        console.error('Erro ao buscar detalhes do monitoramento:', error);
+      }
+    };
+
+    fetchMonitoringDetails();
+  }, [id, monitoringId]);
 
   const handleSave = async () => {
     try {
@@ -23,19 +48,18 @@ const AddSensorPage = () => {
 
       const sensorData = {
         name,
-        type,  // Certifique-se de que o campo type está sendo enviado
-        value,
-        monitoring: monitoringId,
+        status,
+        monitoring: monitoringId, // Relaciona o sensor ao monitoramento
       };
-      console.log("Dados Sensor",sensorData)
+
       const response = await axios.post(
         `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}/sensors`,
         sensorData,
         config
       );
 
-      console.log('Sensor created:', response.data);
-      navigate(`/machines/${id}/monitorings/${monitoringId}`);
+      console.log('Sensor criado:', response.data);
+      navigate(`/machines/${id}/monitorings/${monitoringId}`); // Redireciona de volta para a página de detalhes do monitoramento
     } catch (error) {
       console.error('Erro ao criar sensor:', error);
     }
@@ -47,30 +71,34 @@ const AddSensorPage = () => {
       <Sidebar />
       <Box sx={{ flexGrow: 1, p: 3, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <Box component="form" sx={{ maxWidth: '500px', width: '100%' }}>
+          <Typography variant="h5" component="h1" align="center" gutterBottom>
+            {monitoringName} - {sensorModel}
+          </Typography>
           <TextField
             fullWidth
-            label="Sensor Name"
+            label="Nome do Sensor"
             margin="normal"
             variant="outlined"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required
           />
           <TextField
             fullWidth
-            label="Sensor Type"
+            select
+            label="Status do Sensor"
             margin="normal"
             variant="outlined"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-          />
-          <TextField
-            fullWidth
-            label="Sensor Value"
-            margin="normal"
-            variant="outlined"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            required
+          >
+            {statusOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
           <Button
             fullWidth
             variant="contained"
@@ -78,7 +106,7 @@ const AddSensorPage = () => {
             sx={{ mt: 3 }}
             onClick={handleSave}
           >
-            Save Sensor
+            Criar Sensor
           </Button>
           <Button
             fullWidth
@@ -86,7 +114,7 @@ const AddSensorPage = () => {
             sx={{ mt: 1 }}
             onClick={() => navigate(-1)}
           >
-            Back
+            Voltar
           </Button>
         </Box>
       </Box>

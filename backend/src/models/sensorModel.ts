@@ -1,11 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 interface ISensor extends Document {
   name: string;
-  type: string;
-  value: number;
+  status: string;
+  uniqueId: string;
   monitoring: mongoose.Schema.Types.ObjectId;
-  uniqueId: string; // Adiciona o campo uniqueId ao modelo
   createdAt: Date;
   updatedAt: Date;
 }
@@ -13,10 +13,9 @@ interface ISensor extends Document {
 const sensorSchema = new Schema<ISensor>(
   {
     name: { type: String, required: true },
-    type: { type: String, required: true },
-    value: { type: Number, required: true },
+    status: { type: String, required: true },
+    uniqueId: { type: String, default: uuidv4, unique: true },
     monitoring: { type: Schema.Types.ObjectId, ref: 'Monitoring', required: true },
-    uniqueId: { type: String, unique: true }, // Garante que o campo seja único
   },
   { timestamps: true }
 );

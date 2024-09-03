@@ -1,63 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, TextField, Button, CssBaseline } from '@mui/material';
+import { Box, TextField, Button, CssBaseline, MenuItem } from '@mui/material';
 import Sidebar from '../components/Sidebar';
 import axios from 'axios';
+
+const sensorStatusOptions = ["Ativo", "Inativo", "Em Manutenção"];
 
 const EditSensorPage = () => {
   const { id, monitoringId, sensorId } = useParams<{ id: string; monitoringId: string; sensorId: string }>();
   const navigate = useNavigate();
-
-  const [sensorType, setSensorType] = useState('');
-  const [reading, setReading] = useState('');
+  
+  const [name, setName] = useState('');
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
-    const fetchSensorData = async () => {
+    const fetchSensorDetails = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = {
           headers: { Authorization: `Bearer ${token}` },
         };
-
         const response = await axios.get(
           `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}/sensors/${sensorId}`,
           config
         );
-
-        setSensorType(response.data.type);
-        setReading(response.data.value.toString());
+        const { name, status } = response.data;
+        setName(name);
+        setStatus(status);
       } catch (error) {
-        console.error('Erro ao buscar dados do sensor:', error);
+        console.error('Erro ao buscar detalhes do sensor:', error);
       }
     };
 
-    fetchSensorData();
+    fetchSensorDetails();
   }, [id, monitoringId, sensorId]);
 
   const handleSave = async () => {
     try {
       const token = localStorage.getItem('token');
       const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       };
 
       const sensorData = {
-        type: sensorType,
-        value: parseFloat(reading),
+        name,
+        status,
       };
 
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}/sensors/${sensorId}`,
         sensorData,
         config
       );
 
-      console.log('Sensor updated:', response.data);
       navigate(`/machines/${id}/monitorings/${monitoringId}`);
     } catch (error) {
-      console.error('Erro ao editar sensor:', error);
+      console.error('Erro ao atualizar sensor:', error);
     }
   };
 
@@ -69,20 +67,29 @@ const EditSensorPage = () => {
         <Box component="form" sx={{ maxWidth: '500px', width: '100%' }}>
           <TextField
             fullWidth
-            label="Sensor Type"
+            label="Nome do Sensor"
             margin="normal"
             variant="outlined"
-            value={sensorType}
-            onChange={(e) => setSensorType(e.target.value)}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
           />
           <TextField
             fullWidth
-            label="Reading"
+            select
+            label="Status do Sensor"
             margin="normal"
             variant="outlined"
-            value={reading}
-            onChange={(e) => setReading(e.target.value)}
-          />
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            required
+          >
+            {sensorStatusOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                {option}
+              </MenuItem>
+            ))}
+          </TextField>
           <Button
             fullWidth
             variant="contained"
@@ -90,15 +97,15 @@ const EditSensorPage = () => {
             sx={{ mt: 3 }}
             onClick={handleSave}
           >
-            Save Changes
+            Salvar
           </Button>
           <Button
             fullWidth
             variant="outlined"
             sx={{ mt: 1 }}
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(-1)} // Voltar para a página anterior
           >
-            Back
+            Voltar
           </Button>
         </Box>
       </Box>

@@ -1,5 +1,6 @@
 import asyncHandler from "express-async-handler";
 import Sensor from "../models/sensorModel";
+import Monitoring from '../models/monitoringModel';
 import { v4 as uuidv4 } from 'uuid';
 
 // @desc Get all sensors for a specific monitoring
@@ -8,11 +9,11 @@ import { v4 as uuidv4 } from 'uuid';
 const getSensorsForMonitoring = asyncHandler(async (req, res) => {
   const sensors = await Sensor.find({ monitoring: req.params.monitoringId });
 
-  if (sensors.length > 0) {
+  if (sensors) {
     res.json(sensors);
   } else {
     res.status(404);
-    throw new Error("No sensors found for this monitoring");
+    throw new Error('No sensors found for this monitoring');
   }
 });
 
@@ -20,16 +21,20 @@ const getSensorsForMonitoring = asyncHandler(async (req, res) => {
 // @route POST /api/monitorings/:monitoringId/sensors
 // @access Private
 const addSensor = asyncHandler(async (req, res) => {
-  const { name, type, value } = req.body;
-
+  const { name, status } = req.body;
   const monitoringId = req.params.monitoringId;
+
+  // Verifica se o monitoramento existe
+  const monitoring = await Monitoring.findById(monitoringId);
+  if (!monitoring) {
+    res.status(404);
+    throw new Error('Monitoring not found');
+  }
 
   const sensor = new Sensor({
     name,
-    type,
-    value,
+    status,
     monitoring: monitoringId,
-    uniqueId: uuidv4()
   });
 
   const createdSensor = await sensor.save();
@@ -66,14 +71,13 @@ const getSensorById = asyncHandler(async (req, res) => {
 
 // Função para atualizar um sensor
 const updateSensor = asyncHandler(async (req, res) => {
-  const { name, type, value } = req.body;
+  const { name, status } = req.body; // Usando 'name' e 'status' como os únicos campos editáveis
 
   const sensor = await Sensor.findById(req.params.sensorId);
 
   if (sensor) {
     sensor.name = name || sensor.name;
-    sensor.type = type || sensor.type;
-    sensor.value = value || sensor.value;
+    sensor.status = status || sensor.status;
 
     const updatedSensor = await sensor.save();
     res.json(updatedSensor);
@@ -82,5 +86,7 @@ const updateSensor = asyncHandler(async (req, res) => {
     throw new Error('Sensor not found');
   }
 });
+
+
 
 export { getSensorsForMonitoring, addSensor, deleteSensor, getSensorById, updateSensor };

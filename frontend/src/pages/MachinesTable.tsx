@@ -135,7 +135,7 @@ export function MachinesTable({
                 <TableCell>{index + 1 + currentPage * rowsPerPageState}</TableCell>
                 <TableCell>
                   <Stack sx={{ alignItems: 'center' }} direction="row" spacing={2}>
-                    <Avatar src={row.avatar || ''} />
+                    <Avatar />
                     <Typography variant="subtitle2">{row.name}</Typography>
                   </Stack>
                 </TableCell>
