@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import Machine from '../models/machineModel';
 import Monitoring from "../models/monitoringModel";
+import Sensor from "../models/sensorModel";
 import axios from 'axios';
 
 
@@ -58,4 +59,24 @@ const addMonitoring = asyncHandler(async (req, res) => {
   }
 });
 
-export { getMonitoringsForMachine, addMonitoring };
+// @desc Delete a monitoring and its associated sensors
+// @route DELETE /api/machines/:machineId/monitorings/:monitoringId
+// @access Private
+const deleteMonitoring = asyncHandler(async (req, res) => {
+  const monitoringId = req.params.monitoringId;
+
+  // Exclui todos os sensores associados ao monitoramento
+  await Sensor.deleteMany({ monitoring: monitoringId });
+
+  // Exclui o próprio monitoramento
+  const monitoring = await Monitoring.findById(monitoringId);
+  if (monitoring) {
+    await Monitoring.deleteOne({ _id: monitoringId }); // Usando deleteOne para excluir
+    res.json({ message: "Monitoring and its sensors removed" });
+  } else {
+    res.status(404);
+    throw new Error("Monitoring not found");
+  }
+});
+
+export { getMonitoringsForMachine, addMonitoring, deleteMonitoring };

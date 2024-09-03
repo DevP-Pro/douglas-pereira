@@ -23,29 +23,9 @@ const Sidebar = () => {
           <ListItemIcon><Home /></ListItemIcon>
           <ListItemText primary="Overview" />
         </ListItem>
-        <ListItem component={Link} to="/customers">
-          <ListItemIcon><People /></ListItemIcon>
-          <ListItemText primary="Customers" />
-        </ListItem>
-        <ListItem component={Link} to="/integrations">
+        <ListItem component={Link} to="/machines">
           <ListItemIcon><Settings /></ListItemIcon>
-          <ListItemText primary="Integrations" />
-        </ListItem>
-        <ListItem component={Link} to="/settings">
-          <ListItemIcon><Settings /></ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItem>
-        <ListItem component={Link} to="/account">
-          <ListItemIcon><People /></ListItemIcon>
-          <ListItemText primary="Account" />
-        </ListItem>
-        <ListItem component={Link} to="/error">
-          <ListItemIcon><ExitToApp /></ListItemIcon>
-          <ListItemText primary="Error" />
-        </ListItem>
-        <ListItem component={Link} to="/logout">
-          <ListItemIcon><ExitToApp /></ListItemIcon>
-          <ListItemText primary="Logout" />
+          <ListItemText primary="Máquinas" />
         </ListItem>
       </List>
     </Drawer>

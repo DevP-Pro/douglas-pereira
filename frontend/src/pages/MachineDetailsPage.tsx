@@ -1,12 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Button, Container, Paper, Typography, Table, TableBody, TableCell, TableHead, TableRow, TablePagination, IconButton } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Button,
+  Container,
+  Paper,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TablePagination,
+  IconButton,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
-import axios from 'axios';
-import Sidebar from '../components/Sidebar';
+import axios from "axios";
+import Sidebar from "../components/Sidebar";
 
 interface Monitoring {
   _id: string;
@@ -26,7 +39,7 @@ const MachineDetailsPage = () => {
   useEffect(() => {
     const fetchMonitorings = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const config = {
           headers: { Authorization: `Bearer ${token}` },
         };
@@ -37,10 +50,10 @@ const MachineDetailsPage = () => {
         setMonitorings(response.data);
         console.info(response.data);
       } catch (error) {
-        console.error('Erro ao buscar monitoramentos:', error);
+        console.error("Erro ao buscar monitoramentos:", error);
       }
     };
-  
+
     fetchMonitorings();
   }, [id]);
 
@@ -53,9 +66,31 @@ const MachineDetailsPage = () => {
     // Aqui você pode redirecionar para a página de edição de monitoramento ou abrir um modal de edição
   };
 
-  const handleDeleteMonitoring = (monitoringId: string) => {
-    console.log(`Excluir monitoramento: ${monitoringId}`);
-    // Aqui você pode implementar a lógica de exclusão de monitoramento
+  // Função para apagar o monitoramento
+  const handleDeleteMonitoring = async (monitoringId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        throw new Error("Token não encontrado");
+      }
+
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+
+      await axios.delete(
+        `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}`,
+        config
+      );
+
+      // Atualiza a lista de monitoramentos após a exclusão
+      setMonitorings(
+        monitorings.filter((monitoring) => monitoring._id !== monitoringId)
+      );
+    } catch (error) {
+      console.error("Erro ao excluir monitoramento:", error);
+    }
   };
 
   const handleViewMonitoring = (monitoringId: string) => {
@@ -67,13 +102,15 @@ const MachineDetailsPage = () => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <Box sx={{ display: "flex", height: "100vh" }}>
       <Sidebar />
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Paper elevation={3} sx={{ padding: 4 }}>
@@ -88,14 +125,15 @@ const MachineDetailsPage = () => {
           >
             Adicionar Monitoramento
           </Button>
-          <Box sx={{ overflowX: 'auto' }}>
-            <Table sx={{ minWidth: '800px' }}>
+          <Box sx={{ overflowX: "auto" }}>
+            <Table sx={{ minWidth: "800px" }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Tipo de Sensor</TableCell>
                   <TableCell>Leitura</TableCell>
                   <TableCell>Data/Hora</TableCell>
-                  <TableCell>Ações</TableCell> {/* Coluna para os botões de ação */}
+                  <TableCell>Ações</TableCell>{" "}
+                  {/* Coluna para os botões de ação */}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -105,7 +143,9 @@ const MachineDetailsPage = () => {
                     <TableRow key={monitoring._id}>
                       <TableCell>{monitoring.name}</TableCell>
                       <TableCell>{monitoring.type}</TableCell>
-                      <TableCell>{new Date(monitoring.updatedAt).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {new Date(monitoring.updatedAt).toLocaleString()}
+                      </TableCell>
                       <TableCell>
                         <IconButton
                           aria-label="view"
