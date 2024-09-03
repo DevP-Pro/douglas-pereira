@@ -8,7 +8,7 @@ interface JwtPayload {
 
 const protect = (req: UserRequest, res: Response, next: NextFunction) => {
   let token;
-
+  
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
       // Obtém o token do header

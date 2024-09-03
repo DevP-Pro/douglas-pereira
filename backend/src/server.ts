@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/db';
 import machineRoutes from './routes/machineRoutes';
 import monitoringRoutes from './routes/monitoringRoutes';
+import sensorRoutes from './routes/sensorRoutes'; // Certifique-se de que esta importação está correta
 import { protect } from './middleware/authMiddleware';
 
 dotenv.config();
@@ -17,7 +18,10 @@ app.use(express.json());
 
 app.use('/api/machines', machineRoutes); // Configure a rota para máquinas
 
-app.use('/api/machines/:id/monitorings', protect, monitoringRoutes);
+app.use('/api/machines/:id/monitorings', protect, monitoringRoutes); // Configure a rota para monitoramentos
+
+// Ajuste a rota dos sensores para lidar com rotas que incluem sensorId e rotas que não incluem
+app.use('/api/machines/:id/monitorings/:monitoringId/sensors', protect, sensorRoutes);
 
 app.get('/', (req, res) => {
   res.send('API is running...');

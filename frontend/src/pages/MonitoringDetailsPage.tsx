@@ -8,59 +8,79 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import axios from 'axios';
 import Sidebar from '../components/Sidebar';
 
-interface Monitoring {
+interface Sensor {
   _id: string;
   name: string;
   type: string;
+  value: number;
   createdAt: string;
   updatedAt: string;
 }
 
-const MachineDetailsPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const [monitorings, setMonitorings] = useState<Monitoring[]>([]);
+const MonitoringDetailsPage = () => {
+  const { id, monitoringId } = useParams<{ id: string; monitoringId: string }>();
+  const [sensors, setSensors] = useState<Sensor[]>([]);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchMonitorings = async () => {
+    const fetchSensors = async () => {
       try {
         const token = localStorage.getItem('token');
         const config = {
           headers: { Authorization: `Bearer ${token}` },
         };
         const response = await axios.get(
-          `http://localhost:5000/api/machines/${id}/monitorings`,
+          `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}/sensors`,
           config
         );
-        setMonitorings(response.data);
-        console.info(response.data);
+        setSensors(response.data);
       } catch (error) {
-        console.error('Erro ao buscar monitoramentos:', error);
+        console.error('Erro ao buscar sensores:', error);
       }
     };
+
+    fetchSensors();
+  }, [monitoringId]);
+
+  const handleAddSensor = () => {
+    navigate(`/machines/${id}/monitorings/${monitoringId}/add-sensor`);
+  };
+
+  const handleEditSensor = (sensorId: string) => {
+    navigate(`/machines/${id}/monitorings/${monitoringId}/sensors/${sensorId}/edit`);
+  };
   
-    fetchMonitorings();
-  }, [id]);
-
-  const handleAddMonitoring = () => {
-    navigate(`/machines/${id}/add-monitoring`);
+  
+  const handleDeleteSensor = async (sensorId: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        throw new Error("Token não encontrado");
+      }
+  
+      const config = {
+        headers: { Authorization: `Bearer ${token}` },
+      };
+  
+      await axios.delete(
+        `http://localhost:5000/api/machines/${id}/monitorings/${monitoringId}/sensors/${sensorId}`,
+        config
+      );
+  
+      // Atualiza a lista de sensores após a exclusão
+      setSensors(sensors.filter(sensor => sensor._id !== sensorId));
+    } catch (error) {
+      console.error('Erro ao excluir sensor:', error);
+    }
   };
+  
+  
 
-  const handleEditMonitoring = (monitoringId: string) => {
-    console.log(`Editar monitoramento: ${monitoringId}`);
-    // Aqui você pode redirecionar para a página de edição de monitoramento ou abrir um modal de edição
-  };
-
-  const handleDeleteMonitoring = (monitoringId: string) => {
-    console.log(`Excluir monitoramento: ${monitoringId}`);
-    // Aqui você pode implementar a lógica de exclusão de monitoramento
-  };
-
-  const handleViewMonitoring = (monitoringId: string) => {
-    console.log(`Visualizar detalhes do monitoramento: ${monitoringId}`);
-    navigate(`/machines/${id}/monitorings/${monitoringId}`);
+  const handleViewSensor = (sensorId: string) => {
+    console.log(`Visualizar detalhes do sensor: ${sensorId}`);
   };
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -78,50 +98,46 @@ const MachineDetailsPage = () => {
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Paper elevation={3} sx={{ padding: 4 }}>
           <Typography variant="h5" component="h1" gutterBottom>
-            Detalhes da Máquina
+            Detalhes do Monitoramento
           </Typography>
           <Button
             variant="contained"
             color="primary"
-            onClick={handleAddMonitoring}
+            onClick={handleAddSensor}
             sx={{ mb: 2 }}
           >
-            Adicionar Monitoramento
+            Adicionar Sensor
           </Button>
           <Box sx={{ overflowX: 'auto' }}>
             <Table sx={{ minWidth: '800px' }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Tipo de Sensor</TableCell>
-                  <TableCell>Leitura</TableCell>
+                  <TableCell>Nome do Sensor</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Valor</TableCell>
                   <TableCell>Data/Hora</TableCell>
-                  <TableCell>Ações</TableCell> {/* Coluna para os botões de ação */}
+                  <TableCell>Ações</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {monitorings
+                {sensors
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((monitoring) => (
-                    <TableRow key={monitoring._id}>
-                      <TableCell>{monitoring.name}</TableCell>
-                      <TableCell>{monitoring.type}</TableCell>
-                      <TableCell>{new Date(monitoring.updatedAt).toLocaleString()}</TableCell>
+                  .map((sensor) => (
+                    <TableRow key={sensor._id}>
+                      <TableCell>{sensor.name}</TableCell>
+                      <TableCell>{sensor.type}</TableCell>
+                      <TableCell>{sensor.value}</TableCell>
+                      <TableCell>{new Date(sensor.updatedAt).toLocaleString()}</TableCell>
                       <TableCell>
                         <IconButton
-                          aria-label="view"
-                          onClick={() => handleViewMonitoring(monitoring._id)}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
-                        <IconButton
                           aria-label="edit"
-                          onClick={() => handleEditMonitoring(monitoring._id)}
+                          onClick={() => handleEditSensor(sensor._id)}
                         >
                           <EditIcon />
                         </IconButton>
                         <IconButton
                           aria-label="delete"
-                          onClick={() => handleDeleteMonitoring(monitoring._id)}
+                          onClick={() => handleDeleteSensor(sensor._id)}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -133,7 +149,7 @@ const MachineDetailsPage = () => {
           </Box>
           <TablePagination
             component="div"
-            count={monitorings.length}
+            count={sensors.length}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
@@ -146,4 +162,4 @@ const MachineDetailsPage = () => {
   );
 };
 
-export default MachineDetailsPage;
+export default MonitoringDetailsPage;

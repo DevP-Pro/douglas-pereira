@@ -8,6 +8,10 @@ import MachinesPage from './pages/MachinesPage';
 import MachineFormPage from './pages/MachineFormPage';
 import AddMachinePage from "./pages/AddMachinePage";
 import MachineDetailsPage from "./pages/MachineDetailsPage";
+import AddMonitoringPage from "./pages/AddMonitoringPage";
+import MonitoringDetailsPage from "./pages/MonitoringDetailsPage";
+import AddSensorPage from "./pages/AddSensorPage";
+import EditSensorPage from "./pages/EditSensorPage";
 
 const App = () => {
   return (
@@ -62,6 +66,38 @@ const App = () => {
           element={
             <PrivateRoute>
               <MachineDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/:machineId/add-monitoring"
+          element={
+            <PrivateRoute>
+              <AddMonitoringPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/:id/monitorings/:monitoringId"
+          element={
+            <PrivateRoute>
+              <MonitoringDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/:id/monitorings/:monitoringId/add-sensor"
+          element={
+            <PrivateRoute>
+              <AddSensorPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/machines/:id/monitorings/:monitoringId/sensors/:sensorId/edit"
+          element={
+            <PrivateRoute>
+              <EditSensorPage />
             </PrivateRoute>
           }
         />
