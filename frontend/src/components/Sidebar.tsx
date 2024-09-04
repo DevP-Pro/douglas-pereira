@@ -15,7 +15,7 @@ import {
   Avatar,
   Button,
 } from "@mui/material";
-import { Home, People, ExitToApp, Menu, Settings } from "@mui/icons-material";
+import { Home, People, ExitToApp, Menu, Settings, PrecisionManufacturing } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
@@ -79,15 +79,9 @@ const Sidebar = () => {
             },
           }}
         >
-          <ListItem component={Link} to="/dashboard" sx={{ pl: 3, py: 1 }}>
-            <ListItemIcon>
-              <Home />
-            </ListItemIcon>
-            <ListItemText primary="Início" />
-          </ListItem>
           <ListItem component={Link} to="/machines" sx={{ pl: 3, py: 1 }}>
             <ListItemIcon>
-              <People />
+              <PrecisionManufacturing />
             </ListItemIcon>
             <ListItemText primary="Máquinas" />
           </ListItem>
